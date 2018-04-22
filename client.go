@@ -32,11 +32,20 @@ func (c *Client) Event() (ev Event, err error) {
 	if c.s == nil {
 		return Event{}, ErrClosedClient
 	}
-	event, err := c.s.Event()
-	if err != nil {
-		return Event{}, err
+
+	var event ScannedEvent
+	// Wait for an event with some data
+	for event.Data == "" {
+		event, err = c.s.Event()
+		if err != nil {
+			return Event{}, err
+		}
 	}
-	ev.Name = event.Type
+	if event.Type == "" {
+		ev.Name = "message"
+	} else {
+		ev.Name = event.Type
+	}
 	if event.Data != "" {
 		// strip last \n
 		ev.Data = event.Data[:len(event.Data)-1]
