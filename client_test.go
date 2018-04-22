@@ -26,6 +26,11 @@ func TestEventDecoding(t *testing.T) {
 			err:   io.EOF,
 		},
 		{
+			name:  "only a comment",
+			input: ":start\n\n",
+			err:   io.EOF,
+		},
+		{
 			name:  "one data line",
 			input: "data:ok\n\n",
 			event: sse.Event{Name: "message", Data: "ok"},
