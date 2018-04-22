@@ -24,7 +24,6 @@ var ErrClosedClient = errors.New("client closed")
 
 // Event reads an event from the stream.
 func (c *Client) Event() (ev Event, err error) {
-	//An exact implementation of https://www.w3.org/TR/2009/WD-eventsource-20090421/#event-stream-interpretations
 	if c.s == nil {
 		return Event{}, ErrClosedClient
 	}

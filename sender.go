@@ -1,5 +1,5 @@
 //Package sse implements a server and client for the HTML5 Server-Sent-Events protocol.
-//More protocol information available at https://www.w3.org/TR/2009/WD-eventsource-20090421/
+//More protocol information available at https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events
 package sse
 
 import (
@@ -33,7 +33,7 @@ func NewSender(w http.ResponseWriter) (*Sender, error) {
 }
 
 //Event is an SSE event.
-//See https://www.w3.org/TR/2009/WD-eventsource-20090421/#event-stream-interpretation for more info.
+//See https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events for more info.
 //The "id" and "retry" settings are not currently implemented.
 type Event struct {
 	Name string //Name of the event, referred to as "event" (optional)
