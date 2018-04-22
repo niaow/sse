@@ -10,16 +10,20 @@ import (
 
 //Client is a SSE client
 type Client struct {
-	r io.ReadCloser
+	r io.Reader
 	s *bufio.Scanner
+}
+
+// NewClient returns a client which will parse Event from the io.Reader
+func NewClient(r io.Reader) *Client {
+	return &Client{r: r, s: bufio.NewScanner(r)}
 }
 
 //ErrClosedClient is an error indicating that the client has been used after it was closed.
 var ErrClosedClient = errors.New("client closed")
 
-//ReadEvent reads an event from the stream.
-func (c *Client) ReadEvent() (ev Event, err error) {
-	//An exact implementation of https://www.w3.org/TR/2009/WD-eventsource-20090421/#event-stream-interpretations
+// Event reads an event from the stream.
+func (c *Client) Event() (ev Event, err error) {
 	if c.s == nil {
 		return Event{}, ErrClosedClient
 	}
@@ -67,7 +71,11 @@ func (c *Client) ReadEvent() (ev Event, err error) {
 //Close closes the client
 func (c *Client) Close() error {
 	c.s = nil
-	return c.r.Close()
+	closer, ok := (c.r).(io.Closer)
+	if !ok {
+		return nil
+	}
+	return closer.Close()
 }
 
 //ErrNotSSE is an error returned when a client recieves a non-SSE response
@@ -84,5 +92,5 @@ func Connect(client *http.Client, request *http.Request) (*Client, error) {
 		resp.Body.Close()
 		return nil, ErrNotSSE
 	}
-	return &Client{r: resp.Body, s: bufio.NewScanner(resp.Body)}, nil
+	return NewClient(resp.Body), nil
 }
