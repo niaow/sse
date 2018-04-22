@@ -95,6 +95,11 @@ func TestScannedEventDecoding(t *testing.T) {
 			input: "data:1\ndata: 2\ndata:3\n\n",
 			event: sse.ScannedEvent{Data: "1\n2\n3\n"},
 		},
+		{
+			name:  "data with colon",
+			input: "data: key:value\n\n",
+			event: sse.ScannedEvent{Data: "key:value\n"},
+		},
 	}
 
 	for _, c := range cc {
