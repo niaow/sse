@@ -89,3 +89,66 @@ func TestEventDecoding(t *testing.T) {
 		})
 	}
 }
+
+func TestSpecExamples(t *testing.T) {
+	// taken from https://html.spec.whatwg.org/multipage/server-sent-events.html#dispatchMessage
+	cc := []struct {
+		name   string
+		input  string
+		events []sse.Event
+		err    error
+	}{
+		{
+			name:   "stocks",
+			input:  "data: YHOO\ndata: +2\ndata: 10\n\n",
+			events: []sse.Event{{Name: "message", Data: "YHOO\n+2\n10"}},
+		},
+		{
+			name:  "four blocks",
+			input: ": test stream\ndata: first event\nid: 1\n\ndata:second event\nid\n\ndata:  third event\n",
+			events: []sse.Event{
+				{Name: "message", Data: "first event"},
+				{Name: "message", Data: "second event"},
+			},
+		},
+		{
+			name:  "two event",
+			input: "data\n\ndata\ndata\n\ndata:\n",
+			events: []sse.Event{
+				{Name: "message", Data: ""},
+				{Name: "message", Data: "\n"},
+			},
+		},
+		{
+			name:  "two identical events",
+			input: "data:test\n\ndata: test\n\n",
+			events: []sse.Event{
+				{Name: "message", Data: "test"},
+				{Name: "message", Data: "test"},
+			},
+		},
+	}
+
+	for _, c := range cc {
+		t.Run(c.name, func(t *testing.T) {
+			client := sse.NewClient(bytes.NewBufferString(c.input))
+			for i, event := range c.events {
+				e, err := client.Event()
+				if err != c.err {
+					t.Errorf("got error '%v', expected '%v' on event %d", err, c.err, i)
+				}
+				if e != event {
+					t.Errorf("got %#v, expected %#v on event %d", e, event, i)
+				}
+			}
+			e, err := client.Event()
+			if err != io.EOF {
+				t.Errorf("unexpected event at the end: %#v (error: %v)", e, err)
+			}
+			err = client.Close()
+			if err != nil {
+				t.Errorf("could not close the client: %v", err)
+			}
+		})
+	}
+}
