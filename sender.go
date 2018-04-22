@@ -107,9 +107,9 @@ func writeField(bw *bufio.Writer, name string, val string) int64 {
 	if val == "" {
 		return 0
 	}
-	if name == "data" && strings.ContainsAny(name, "\n\r") {
+	if name == "data" && strings.ContainsAny(val, "\n\r") {
 		var n int64
-		for _, v := range strings.Split(strings.Replace(strings.Replace(name, "\r\n", "\n", -1), "\r", "\n", -1), "\n") {
+		for _, v := range strings.Split(strings.Replace(strings.Replace(val, "\r\n", "\n", -1), "\r", "\n", -1), "\n") {
 			n += writeField(bw, name, v)
 		}
 		return n
