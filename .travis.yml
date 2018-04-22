@@ -1,4 +1,4 @@
-anguage: go
+language: go
 os:
  - linux
  - osx
