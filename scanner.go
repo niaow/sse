@@ -18,6 +18,7 @@ type ScannedEvent struct {
 	Type  string // event type
 	Data  string // data buffer
 	ID    string // last event ID
+	IDSet bool   // was the last event ID set
 	Retry int    // event stream's reconnection time
 }
 
@@ -52,6 +53,7 @@ func (s *Scanner) Event() (ev ScannedEvent, err error) {
 		case "id":
 			if !strings.ContainsRune(val, '\000') {
 				ev.ID = val
+				ev.IDSet = true
 			}
 		case "retry":
 			retry, err := strconv.Atoi(val)

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"io"
 	"testing"
+
+	"github.com/jadr2ddude/sse"
 )
 
 func TestScannedEventDecoding(t *testing.T) {
@@ -41,7 +43,12 @@ func TestScannedEventDecoding(t *testing.T) {
 		{
 			name:  "one data line with id",
 			input: "data:ok\nid:1\n\n",
-			event: ScannedEvent{ID: "1", Data: "ok\n"},
+			event: sse.ScannedEvent{ID: "1", IDSet: true, Data: "ok\n"},
+		},
+		{
+			name:  "one data line with empty id",
+			input: "data:ok\nid\n\n",
+			event: sse.ScannedEvent{IDSet: true, Data: "ok\n"},
 		},
 		{
 			name:  "U+0000 in ID",

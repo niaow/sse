@@ -41,7 +41,7 @@ func (c *Client) Event() (ev Event, err error) {
 		// strip last \n
 		ev.Data = event.Data[:len(event.Data)-1]
 	}
-	if event.ID != "" {
+	if event.IDSet {
 		c.lastEventID = event.ID
 	}
 	// todo: set lastEventID of event
