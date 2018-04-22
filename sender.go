@@ -1,3 +1,5 @@
+//Package sse implements a server and client for the HTML5 Server-Sent-Events protocol.
+//More protocol information available at https://www.w3.org/TR/2009/WD-eventsource-20090421/
 package sse
 
 import (
