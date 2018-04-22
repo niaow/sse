@@ -14,11 +14,14 @@ type Client struct {
 	s *bufio.Scanner
 }
 
+//ErrClosedClient is an error indicating that the client has been used after it was closed.
+var ErrClosedClient = errors.New("client closed")
+
 //ReadEvent reads an event from the stream.
 func (c *Client) ReadEvent() (ev Event, err error) {
 	//An exact implementation of https://www.w3.org/TR/2009/WD-eventsource-20090421/#event-stream-interpretations
 	if c.s == nil {
-		return Event{}, io.ErrClosedPipe
+		return Event{}, ErrClosedClient
 	}
 	for c.s.Scan() {
 		ln := c.s.Text()
