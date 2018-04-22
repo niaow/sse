@@ -58,6 +58,9 @@ func (c *Client) ReadEvent() (ev Event, err error) {
 		}
 	}
 	err = c.s.Err()
+	if err == nil {
+		err = io.ErrUnexpectedEOF
+	}
 	return
 }
 
