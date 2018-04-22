@@ -40,19 +40,19 @@ func (c *Client) Event() (ev Event, err error) {
 		if err != nil {
 			return Event{}, err
 		}
+		if event.IDSet {
+			c.lastEventID = event.ID
+		}
 	}
 	if event.Type == "" {
 		ev.Name = "message"
 	} else {
 		ev.Name = event.Type
 	}
-	if event.Data != "" {
-		// strip last \n
-		ev.Data = event.Data[:len(event.Data)-1]
-	}
-	if event.IDSet {
-		c.lastEventID = event.ID
-	}
+
+	// strip last \n
+	ev.Data = event.Data[:len(event.Data)-1]
+
 	// todo: set lastEventID of event
 
 	return ev, nil
