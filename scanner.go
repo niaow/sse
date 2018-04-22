@@ -15,11 +15,12 @@ type Scanner struct {
 // ScannedEvent is an SSE event.
 // See https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events for more info.
 type ScannedEvent struct {
-	Type  string // event type
-	Data  string // data buffer
-	ID    string // last event ID
-	IDSet bool   // was the last event ID set
-	Retry int    // event stream's reconnection time
+	Type     string // event type
+	Data     string // data buffer
+	ID       string // last event ID
+	IDSet    bool   // was the last event ID set
+	Retry    int    // event stream's reconnection time
+	RetrySet bool   // was the Retry delay set
 }
 
 // NewScanner returns a Scanner which will parse Event from the io.Reader
@@ -59,6 +60,7 @@ func (s *Scanner) Event() (ev ScannedEvent, err error) {
 			retry, err := strconv.Atoi(val)
 			if err == nil {
 				ev.Retry = retry
+				ev.RetrySet = true
 			}
 		default:
 			// unsupported field

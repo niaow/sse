@@ -33,7 +33,12 @@ func TestScannedEventDecoding(t *testing.T) {
 		{
 			name:  "one data line with retry",
 			input: "data:ok\nretry:15\n\n",
-			event: sse.ScannedEvent{Data: "ok\n", Retry: 15},
+			event: sse.ScannedEvent{Data: "ok\n", Retry: 15, RetrySet: true},
+		},
+		{
+			name:  "one data line with zero retry",
+			input: "data:ok\nretry: 0\n\n",
+			event: sse.ScannedEvent{Data: "ok\n", RetrySet: true},
 		},
 		{
 			name:  "one data line with type",
