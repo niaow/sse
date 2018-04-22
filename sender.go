@@ -150,11 +150,7 @@ func (s *Sender) SendEvent(event Event) error {
 //When using this method, you must manually call Flush to writr the events.
 //The purpose of this method is to speed up sending large batches of events.
 func (s *Sender) SendQuick(event Event) error {
-	err := event.Validate()
-	if err != nil {
-		return err
-	}
-	_, err = event.WriteTo(s.buf)
+	_, err := event.WriteTo(s.buf)
 	if err != nil {
 		return err
 	}
