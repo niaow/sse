@@ -48,7 +48,7 @@ func (c *Client) ReadEvent() (ev Event, err error) {
 			ev.Name = val
 		case "data":
 			if val == "" {
-				val = "\u000A"
+				val = "\n"
 			}
 			ev.Data = val
 		case "id": //unimplemented
