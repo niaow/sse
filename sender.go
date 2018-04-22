@@ -127,13 +127,7 @@ func (ev Event) WriteTo(w io.Writer) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	var bw *bufio.Writer
-	switch wv := w.(type) {
-	case *bufio.Writer:
-		bw = wv
-	default:
-		bw = bufio.NewWriter(w)
-	}
+	bw := bufio.NewWriter(w)
 	var n int64
 	n += writeField(bw, "event", ev.Name)
 	n += writeField(bw, "data", ev.Data)
