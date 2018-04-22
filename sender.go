@@ -209,7 +209,7 @@ func (s *Sender) sendJSONCh(ch interface{}) error {
 		return ErrNotAChan
 	}
 	for {
-		val, ok := v.TryRecv()
+		val, ok := v.Recv()
 		if !ok {
 			return nil
 		}
