@@ -129,7 +129,8 @@ func (ev Event) WriteTo(w io.Writer) (int64, error) {
 	var n int64
 	n += writeField(bw, "event", ev.Name)
 	n += writeField(bw, "data", ev.Data)
-	return n, bw.Flush()
+	n2, _ := bw.WriteRune('\n')
+	return n + int64(n2), bw.Flush()
 }
 
 //SendEvent sends an event.
