@@ -51,10 +51,6 @@ func doChat() {
 }
 
 func handleEvent(ss *sse.Sender, r *http.Request) {
-	ss.SendJSON(msg{
-		User: "server",
-		Text: "connected",
-	})
 
 	//create message channel
 	ch := make(chan msg, 2)
@@ -64,10 +60,21 @@ func handleEvent(ss *sse.Sender, r *http.Request) {
 	connect <- ch
 	defer func() { disconnect <- ch }()
 
-	//send messages
-	err := ss.SendChannel(ch)
+	err := ss.SendJSON(msg{
+		User: "server",
+		Text: "connected",
+	})
+	if err != nil {
+		return
+	}
 
-	log.Println(err)
+	//send messages
+	for m := range ch {
+		err = ss.SendJSON(m)
+		if err != nil {
+			return
+		}
+	}
 }
 
 func handleSend(w http.ResponseWriter, r *http.Request) {

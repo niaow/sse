@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"reflect"
 	"strings"
 )
 
@@ -169,56 +168,6 @@ func (s *Sender) SendJSON(msg interface{}) error {
 	return s.SendEvent(Event{
 		Data: string(dat),
 	})
-}
-
-//ErrNotAChan is an error indicating that a SendChannel was attempted on a non-channel value
-var ErrNotAChan = errors.New("not a channel")
-
-//SendChannel sends events from a channel.
-//It returns when the channel is closed.
-//If the channel is a <-chan Event then the events will be sent directly,
-//otherwise they will be encoded into messages as JSON.
-func (s *Sender) SendChannel(channel interface{}) error {
-	ech, ok := channel.(<-chan Event)
-	if ok {
-		return s.sendEvCh(ech)
-	}
-	return s.sendJSONCh(channel)
-}
-
-func (s *Sender) sendEvCh(ch <-chan Event) error {
-	for ev := range ch {
-		err := s.SendQuick(ev)
-		if err != nil {
-			return err
-		}
-		for len(ch) > 0 { //send buffered messages before flushing
-			ev = <-ch
-			err = s.SendQuick(ev)
-			if err != nil {
-				return err
-			}
-		}
-		s.Flush()
-	}
-	return nil
-}
-
-func (s *Sender) sendJSONCh(ch interface{}) error {
-	v := reflect.ValueOf(ch)
-	if v.Kind() != reflect.Chan {
-		return ErrNotAChan
-	}
-	for {
-		val, ok := v.Recv()
-		if !ok {
-			return nil
-		}
-		err := s.SendJSON(val.Interface())
-		if err != nil {
-			return err
-		}
-	}
 }
 
 //Flush flushes the events.
