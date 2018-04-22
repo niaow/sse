@@ -1,4 +1,4 @@
-package sse
+package sse_test
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ func TestEventDecoding(t *testing.T) {
 	cc := []struct {
 		name  string
 		input string
-		event Event
+		event sse.Event
 		err   error
 	}{
 		{
@@ -74,7 +74,7 @@ func TestEventDecoding(t *testing.T) {
 
 	for _, c := range cc {
 		t.Run(c.name, func(t *testing.T) {
-			client := NewClient(bytes.NewBufferString(c.input))
+			client := sse.NewClient(bytes.NewBufferString(c.input))
 			e, err := client.Event()
 			if err != c.err {
 				t.Errorf("got error '%v', expected '%v'", err, c.err)
