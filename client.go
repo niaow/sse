@@ -32,19 +32,34 @@ func (c *Client) Event() (ev Event, err error) {
 	if c.s == nil {
 		return Event{}, ErrClosedClient
 	}
-	event, err := c.s.Event()
-	if err != nil {
-		return Event{}, err
+
+	// According to https://html.spec.whatwg.org/multipage/server-sent-events.html#dispatchMessage
+	var event ScannedEvent
+
+	// "2. If the data buffer is an empty string (...) return" (ie: don't dispatch an event)
+	for event.Data == "" {
+		event, err = c.s.Event()
+		// todo: set the event stream's reconnection time
+		if err != nil {
+			return Event{}, err
+		}
+		// "1. Set the last event ID string of the event source"
+		if event.IDSet {
+			c.lastEventID = event.ID
+		}
 	}
-	ev.Name = event.Type
-	if event.Data != "" {
-		// strip last \n
-		ev.Data = event.Data[:len(event.Data)-1]
+	if event.Type == "" {
+		// 5. Initialize event's type attribute to message
+		ev.Name = "message"
+	} else {
+		// 6. If the event type buffer has a value other than the empty string
+		ev.Name = event.Type
 	}
-	if event.ID != "" {
-		c.lastEventID = event.ID
-	}
-	// todo: set lastEventID of event
+
+	// 3. If the data buffer's last character is a \n (...) remove [it]
+	ev.Data = event.Data[:len(event.Data)-1]
+
+	// todo: set lastEventID on event (5.)
 
 	return ev, nil
 }
