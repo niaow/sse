@@ -1,22 +1,27 @@
 package sse
 
 import (
-	"bufio"
 	"errors"
 	"io"
 	"net/http"
-	"strings"
 )
 
 //Client is a SSE client
 type Client struct {
-	r io.Reader
-	s *bufio.Scanner
+	s           *Scanner
+	lastEventID string
+	close       func() error
 }
 
 // NewClient returns a client which will parse Event from the io.Reader
 func NewClient(r io.Reader) *Client {
-	return &Client{r: r, s: bufio.NewScanner(r)}
+	s := NewScanner(r)
+	var close func() error
+	closer, ok := (r).(io.Closer)
+	if ok {
+		close = closer.Close
+	}
+	return &Client{s: s, close: close}
 }
 
 //ErrClosedClient is an error indicating that the client has been used after it was closed.
@@ -27,55 +32,30 @@ func (c *Client) Event() (ev Event, err error) {
 	if c.s == nil {
 		return Event{}, ErrClosedClient
 	}
-	for c.s.Scan() {
-		ln := c.s.Text()
-		if ln == "" {
-			if ev.Data == "" || checkNCName(ev.Name) != nil {
-				ev = Event{}
-				continue
-			}
-			return
-		}
-		if strings.HasPrefix(ln, ":") { //comment
-			continue
-		}
-		var key, val string
-		if strings.Contains(ln, ":") {
-			spl := strings.SplitN(ln, ":", 2)
-			key, val = spl[0], spl[1]
-			val = strings.TrimLeft(val, " ")
-		} else {
-			key = ln
-		}
-		switch key {
-		case "event":
-			ev.Name = val
-		case "data":
-			if val == "" {
-				val = "\n"
-			}
-			ev.Data = val
-		case "id": //unimplemented
-		case "retry": //unimplemented
-		default:
-			//do nothing, as per the spec
-		}
+	event, err := c.s.Event()
+	if err != nil {
+		return Event{}, err
 	}
-	err = c.s.Err()
-	if err == nil {
-		err = io.ErrUnexpectedEOF
+	ev.Name = event.Type
+	if event.Data != "" {
+		// strip last \n
+		ev.Data = event.Data[:len(event.Data)-1]
 	}
-	return
+	if event.ID != "" {
+		c.lastEventID = event.ID
+	}
+	// todo: set lastEventID of event
+
+	return ev, nil
 }
 
 //Close closes the client
 func (c *Client) Close() error {
 	c.s = nil
-	closer, ok := (c.r).(io.Closer)
-	if !ok {
-		return nil
+	if c.close != nil {
+		return c.close()
 	}
-	return closer.Close()
+	return nil
 }
 
 //ErrNotSSE is an error returned when a client recieves a non-SSE response
