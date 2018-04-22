@@ -92,5 +92,5 @@ func Connect(client *http.Client, request *http.Request) (*Client, error) {
 		resp.Body.Close()
 		return nil, ErrNotSSE
 	}
-	return &Client{r: resp.Body, s: bufio.NewScanner(resp.Body)}, nil
+	return NewClient(resp.Body), nil
 }
