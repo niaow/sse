@@ -13,6 +13,7 @@ import (
 //Sender is an HTML5 Server Sent Events sender
 type Sender struct {
 	hfl ResponseWriteFlusher
+	buf *bufio.Writer
 }
 
 //NewSender creates an SSE event sender using an http.ResponseWriter
@@ -26,7 +27,7 @@ func NewSender(w http.ResponseWriter) (*Sender, error) {
 	rf.Header().Set("Cache-Control", "no-cache")
 	rf.Header().Set("Connection", "keep-alive")
 	rf.WriteHeader(http.StatusOK)
-	return &Sender{hfl: rf}, nil
+	return &Sender{hfl: rf, buf: bufio.NewWriter(rf)}, nil
 }
 
 //Event is an SSE event.
@@ -124,7 +125,13 @@ func (ev Event) WriteTo(w io.Writer) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	bw := bufio.NewWriter(w)
+	var bw *bufio.Writer
+	switch wv := w.(type) {
+	case *bufio.Writer:
+		bw = wv
+	default:
+		bw = bufio.NewWriter(w)
+	}
 	var n int64
 	n += writeField(bw, "event", ev.Name)
 	n += writeField(bw, "data", ev.Data)
@@ -151,7 +158,7 @@ func (s *Sender) SendQuick(event Event) error {
 	if err != nil {
 		return err
 	}
-	_, err = event.WriteTo(s.hfl)
+	_, err = event.WriteTo(s.buf)
 	if err != nil {
 		return err
 	}
