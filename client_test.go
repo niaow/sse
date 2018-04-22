@@ -70,6 +70,11 @@ func TestEventDecoding(t *testing.T) {
 			input: "data:1\ndata: 2\ndata:3\n\n",
 			event: sse.Event{Name: "message", Data: "1\n2\n3"},
 		},
+		{
+			name:  "typed event",
+			input: "event:test\ndata:ok\n\n",
+			event: sse.Event{Name: "test", Data: "ok"},
+		},
 	}
 
 	for _, c := range cc {
