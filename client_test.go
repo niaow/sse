@@ -1,18 +1,16 @@
-package sse_test
+package sse
 
 import (
 	"bytes"
 	"io"
 	"testing"
-
-	"github.com/jadr2ddude/sse"
 )
 
 func TestEventDecoding(t *testing.T) {
 	cc := []struct {
 		name  string
 		input string
-		event sse.Event
+		event Event
 		err   error
 	}{
 		{
@@ -33,58 +31,58 @@ func TestEventDecoding(t *testing.T) {
 		{
 			name:  "one data line",
 			input: "data:ok\n\n",
-			event: sse.Event{Name: "message", Data: "ok"},
+			event: Event{Name: "message", Data: "ok"},
 		},
 		{
 			name:  "one data line with leading space",
 			input: "data: ok\n\n",
-			event: sse.Event{Name: "message", Data: "ok"},
+			event: Event{Name: "message", Data: "ok"},
 		},
 		{
 			name:  "one data line with two leading spaces",
 			input: "data:  ok\n\n",
-			event: sse.Event{Name: "message", Data: " ok"},
+			event: Event{Name: "message", Data: " ok"},
 		},
 		{
 			name:  "comment at the beginning",
 			input: ":some comment\ndata:ok\n\n",
-			event: sse.Event{Name: "message", Data: "ok"},
+			event: Event{Name: "message", Data: "ok"},
 		},
 		{
 			name:  "comment at the end",
 			input: "data:ok\n:some comment\n\n",
-			event: sse.Event{Name: "message", Data: "ok"},
+			event: Event{Name: "message", Data: "ok"},
 		},
 		{
 			name:  "empty data",
 			input: "data:\n\n",
-			event: sse.Event{Name: "message", Data: ""},
+			event: Event{Name: "message", Data: ""},
 		},
 		{
 			name:  "empty data (without ':')",
 			input: "data\n\n",
-			event: sse.Event{Name: "message", Data: ""},
+			event: Event{Name: "message", Data: ""},
 		},
 		{
 			name:  "multiple data lines",
 			input: "data:1\ndata: 2\ndata:3\n\n",
-			event: sse.Event{Name: "message", Data: "1\n2\n3"},
+			event: Event{Name: "message", Data: "1\n2\n3"},
 		},
 		{
 			name:  "typed event",
 			input: "event:test\ndata:ok\n\n",
-			event: sse.Event{Name: "test", Data: "ok"},
+			event: Event{Name: "test", Data: "ok"},
 		},
 		{
 			name:  "set id without data",
 			input: "id:1\n\ndata:ok\n\n",
-			event: sse.Event{Name: "message", Data: "ok"},
+			event: Event{Name: "message", Data: "ok"},
 		},
 	}
 
 	for _, c := range cc {
 		t.Run(c.name, func(t *testing.T) {
-			client := sse.NewClient(bytes.NewBufferString(c.input))
+			client := NewClient(bytes.NewBufferString(c.input))
 			e, err := client.Event()
 			if err != c.err {
 				t.Errorf("got error '%v', expected '%v'", err, c.err)
@@ -105,18 +103,18 @@ func TestSpecExamples(t *testing.T) {
 	cc := []struct {
 		name   string
 		input  string
-		events []sse.Event
+		events []Event
 		err    error
 	}{
 		{
 			name:   "stocks",
 			input:  "data: YHOO\ndata: +2\ndata: 10\n\n",
-			events: []sse.Event{{Name: "message", Data: "YHOO\n+2\n10"}},
+			events: []Event{{Name: "message", Data: "YHOO\n+2\n10"}},
 		},
 		{
 			name:  "four blocks",
 			input: ": test stream\ndata: first event\nid: 1\n\ndata:second event\nid\n\ndata:  third event\n",
-			events: []sse.Event{
+			events: []Event{
 				{Name: "message", Data: "first event"},
 				{Name: "message", Data: "second event"},
 			},
@@ -124,7 +122,7 @@ func TestSpecExamples(t *testing.T) {
 		{
 			name:  "two event",
 			input: "data\n\ndata\ndata\n\ndata:\n",
-			events: []sse.Event{
+			events: []Event{
 				{Name: "message", Data: ""},
 				{Name: "message", Data: "\n"},
 			},
@@ -132,7 +130,7 @@ func TestSpecExamples(t *testing.T) {
 		{
 			name:  "two identical events",
 			input: "data:test\n\ndata: test\n\n",
-			events: []sse.Event{
+			events: []Event{
 				{Name: "message", Data: "test"},
 				{Name: "message", Data: "test"},
 			},
@@ -141,7 +139,7 @@ func TestSpecExamples(t *testing.T) {
 
 	for _, c := range cc {
 		t.Run(c.name, func(t *testing.T) {
-			client := sse.NewClient(bytes.NewBufferString(c.input))
+			client := NewClient(bytes.NewBufferString(c.input))
 			for i, event := range c.events {
 				e, err := client.Event()
 				if err != c.err {
