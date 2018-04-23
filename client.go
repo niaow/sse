@@ -73,7 +73,7 @@ func (c *Client) Close() error {
 	return nil
 }
 
-//ErrNotSSE is an error returned when a client recieves a non-SSE response
+//ErrNotSSE is an error returned when a client receives a non-SSE response
 var ErrNotSSE = errors.New("content type is not 'text/event-stream'")
 
 //Connect performs an SSE request and returns a Client.
