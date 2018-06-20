@@ -8,4 +8,6 @@ go:
 before_install:
   - go get github.com/mattn/goveralls golang.org/x/tools/cmd/cover
 script:
+ - mkdir -p $GOPATH/src/gitlab.com/jadr2ddude
+ - mv $GOPATH/src/github.com/jadr2ddude/sse $GOPATH/src/gitlab.com/jadr2ddude/sse
  - $HOME/gopath/bin/goveralls -service=travis-ci
