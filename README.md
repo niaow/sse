@@ -1,4 +1,4 @@
-# sse [![GoDoc](https://godoc.org/github.com/jadr2ddude/sse?status.svg)](https://godoc.org/github.com/jadr2ddude/sse) [![Build Status](https://travis-ci.org/jadr2ddude/sse.svg?branch=master)](https://travis-ci.org/jadr2ddude/sse) [![Coverage Status](https://coveralls.io/repos/github/jadr2ddude/sse/badge.svg?branch=master)](https://coveralls.io/github/jadr2ddude/sse?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/jadr2ddude/sse)](https://goreportcard.com/report/github.com/jadr2ddude/sse)
+# sse [![GoDoc](https://godoc.org/github.com/jaddr2line/sse?status.svg)](https://godoc.org/github.com/jaddr2line/sse) [![Build Status](https://travis-ci.org/jaddr2line/sse.svg?branch=master)](https://travis-ci.org/jaddr2line/sse) [![Coverage Status](https://coveralls.io/repos/github/jaddr2line/sse/badge.svg?branch=master)](https://coveralls.io/github/jaddr2line/sse?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/jaddr2line/sse)](https://goreportcard.com/report/github.com/jaddr2line/sse)
 
 Golang HTML5 Server-Sent-Events
 
@@ -6,4 +6,4 @@ According to the following specification: https://html.spec.whatwg.org/multipage
 
 ### Example
 
-See [example](https://github.com/jadr2ddude/sse/tree/master/example) for an example.
+See [example](https://github.com/jaddr2line/sse/tree/master/example) for an example.

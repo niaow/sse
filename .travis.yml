@@ -1,15 +1,11 @@
 language: go
 go:
- - 1.7.x
- - 1.8.x
- - 1.9.x
- - 1.10.x
- - tip
+ - "1.11.x"
+ - "1.12.x"
+ - "1.13.x"
 before_install:
   - go get github.com/mattn/goveralls golang.org/x/tools/cmd/cover
 install:
  - echo doing nothing
 script:
- - mkdir -p $GOPATH/src/gitlab.com/jadr2ddude
- - cp -r $GOPATH/src/github.com/jadr2ddude/sse $GOPATH/src/gitlab.com/jadr2ddude/sse
- - $HOME/gopath/bin/goveralls -service=travis-ci
+ - goveralls -service=travis-ci
